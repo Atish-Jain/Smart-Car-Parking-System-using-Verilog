@@ -1,0 +1,86 @@
+`timescale 1ns / 1ps
+module smart_car_parking_system(input clk,reset,
+input entry, exit, 
+input [3:0] password,
+output wire LED);
+parameter IDLE = 3'b000, WAIT_PASSWORD = 3'b001, WRONG_PASS = 3'b010, RIGHT_PASS = 3'b011,STOP = 3'b100,crct_password=4'b1010;
+// Moore FSM : output just depends on the current state
+reg[2:0] current_state, next_state;
+reg[31:0] counter_wait;
+ reg led_tmp;
+ // Next state
+ always @(posedge clk or negedge reset)
+ begin
+ if(~reset) 
+ current_state = IDLE;
+ else
+ current_state = next_state;
+ end
+ // counter_wait
+ always @(posedge clk or negedge reset) 
+ begin
+ if(~reset) 
+ counter_wait <= 0;
+ else if(current_state==WAIT_PASSWORD)
+ counter_wait <= counter_wait + 1;
+ else 
+ counter_wait <= 0;
+ end
+ // change state
+ always @(*)
+ begin
+ case(current_state)
+ IDLE: 
+ begin
+ if(entry== 1)
+ next_state = WAIT_PASSWORD;
+ else
+ next_state = IDLE;
+ end
+ WAIT_PASSWORD: begin
+
+ if(counter_wait <= 3)
+ next_state = WAIT_PASSWORD;
+ else 
+ begin
+ if(password==crct_password)
+ next_state = RIGHT_PASS;
+ else
+ next_state = WRONG_PASS;
+ end
+ end
+ WRONG_PASS: begin
+
+ if(password==crct_password)
+ next_state = RIGHT_PASS;
+ else
+ next_state = WRONG_PASS;
+ end
+ RIGHT_PASS: begin
+ if(entry==1 && exit == 1)
+ next_state = STOP;
+ else if(exit == 1)
+ next_state = IDLE;
+ else
+ next_state = RIGHT_PASS;
+ end
+ STOP: begin
+ if(password==crct_password)
+ next_state = RIGHT_PASS;
+ else
+ next_state = STOP;
+ end
+ default: next_state = IDLE;
+ endcase
+ end
+ always @(posedge clk)
+  begin 
+ if (entry==1 && exit==0 && password==crct_password)
+ led_tmp=1;
+ if (exit==1)
+ led_tmp=0; 
+ if (current_state==IDLE)
+ led_tmp=0;
+  end
+assign LED=led_tmp;
+endmodule
