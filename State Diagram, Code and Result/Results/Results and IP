@@ -1,0 +1,7 @@
+From the Simulation obtained, it is evident that at the positive edge of clock, whenever the entry sensor is at Logic ‘1’ and a correct password ‘a’ or ‘1010’ is provided, the LED blinks showing the Opening of the door in the ‘Right_Pass’ state.
+But, if exit sensor is at Logic ‘1’, the LED comes to Logic ‘0’ which shows that the door has closed and returned to the ‘Idle’ state.
+Also, if entry sensor is at logic ‘1’ and a wrong password, ‘5’ in this case, is provided, then the LED will remain at Logic ‘0’ showing that the door remains closed in the ‘Wrong_Pass’ State.
+Finally, when both entry and exit sensors are at Logic ‘1’ together, then the LED goes to Logic ‘0’ and a right password would be required to be provided again to change to the state ‘Right_Pass’ and open the door.
+The custom IP and an SoC block diagram was created in the Xilinx Vivado Software.
+The custom IP has user ports password[3:0], which is connected to some keypad to enter password, and LED to show whether a person/car gets access to enter or not.
+The other inputs of the IP that are entry and exit are connected to AXI Interconnect and gets data through the AXI peripheral.
